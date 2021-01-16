@@ -1,0 +1,215 @@
+#include <ElnCommunicator.h>
+//settings
+#define INVERT_READ_PULLUP true
+#define DEBUG true
+//defines for reading decimal digits
+#define readOneDigit (Serial.read() - 48)
+#define readTwoDigits (readOneDigit * 10 + readOneDigit)
+#define readThreeDigits (readTwoDigits * 10 + readOneDigit)
+ElnCommunicator::ElnCommunicator() {
+	Serial.begin(115200);
+	buffer_pointer = 0;
+}
+void ElnCommunicator::GetMessage() {
+	while(true) {
+		while(Serial.available() == 0);
+		char header = Serial.read();
+		if(header == '\n') {
+			// End of the packet
+			#if DEBUG
+				Serial.println("End of the packet");
+			#endif
+			return;
+		} else if(header == ' ' || header == '\t') {
+			// Not to do anything
+			// You can format queries when entering them manually
+			#if DEBUG
+				Serial.println("Whitespace");
+			#endif
+		} else if(header == 'S' || header == 's') {
+			// Commands for setting pin modes
+			#if DEBUG
+				Serial.println("Commands for setting pin modes");
+			#endif
+			readSettings(); 
+		} else if(header == 'W' || header == 'w') {
+			// Commands to write pin values
+			#if DEBUG
+				Serial.println("Commands to write pin values");
+			#endif
+			readMessageWritePins(); 
+		} else if(header == 'R' || header == 'r') {
+			// Commands to read pin values
+			#if DEBUG
+				Serial.println("Commands to read pin values");
+			#endif
+			readMessageReadPins(); 
+		} else if(header == 'I' || header == 'i') {
+			// TODO: Send the board type
+			#if DEBUG
+				Serial.println("Send the board type");
+			#endif
+		} else {
+			// Cleaning out the trash
+			#if DEBUG
+				Serial.println("Cleaning out the trash");
+			#endif
+			char reading;	
+			do {
+				reading = Serial.read();
+			} while(reading != '\n');
+		}
+	}
+	if(buffer_pointer > 0) {
+		// Write the response and 
+		// reset the pointer to the buffer
+		for(int i = 0; buffer[i] != '\n'; i++) {
+			Serial.write(buffer[i]);
+		}
+		Serial.write('\n');
+		buffer_pointer = 0;
+	}
+}
+void ElnCommunicator::readSettings() {
+	int count = readTwoDigits;
+	#if DEBUG
+		Serial.print("  Count: "); Serial.println(count);
+	#endif
+	for(int i = 0; i < count; i++)
+	{
+		//First two digits: pin number
+		//Last digit: pin mode
+		int pin_number = readTwoDigits;
+		int pin_mode = readOneDigit;
+		#if DEBUG
+			Serial.print("  "); Serial.print(i); Serial.println(":");
+			Serial.print("    Pin number: "); Serial.println(pin_number);
+			Serial.print("    Pin mode: "); Serial.println(pin_mode);
+		#endif
+		if(pin_mode == 1) {
+			// Digital Input
+			#if DEBUG
+				Serial.println("      Digital Input");
+			#endif
+			pinMode(pin_number, INPUT);
+		} else if(pin_mode == 2) {
+			// Digital Input w/h pullup
+			#if DEBUG
+				Serial.println("      Digital Input w/h pullup");
+			#endif
+			pinMode(pin_number, INPUT_PULLUP);
+		} else if (pin_mode == 3) {
+			// Digital Output
+			#if DEBUG
+				Serial.println("      Digital Output");
+			#endif
+			pinMode(pin_number, OUTPUT);
+        } else if (pin_mode == 4) {
+			// Analog Input
+			#if DEBUG
+				Serial.println("      Analog Input");
+			#endif
+			pinMode(pin_number, INPUT);
+        } else if (pin_mode == 5) {
+			// PWM Output
+			#if DEBUG
+				Serial.println("      PWM Output");
+			#endif
+			pinMode(pin_number, OUTPUT);
+        }
+	}
+}
+void ElnCommunicator::readMessageWritePins() {
+	int count = readTwoDigits;
+	#if DEBUG
+		Serial.print("  Count: "); Serial.println(count);
+	#endif
+	for(int i = 0; i < count; i++) {
+		// First two digits: pin number
+		// Third digit: write mode
+		// The last three (for PWM) or one (for digital) digits: value
+		int pin_number = readTwoDigits;
+		int write_mode = readOneDigit;
+		#if DEBUG
+			Serial.print("  "); Serial.print(i); Serial.println(":");
+			Serial.print("    Pin number: "); Serial.println(pin_number);
+			Serial.print("    Write mode: "); Serial.println(write_mode);
+		#endif
+		int write_value;
+		if(write_mode == 0) {
+			// Digital Write
+			write_value = readOneDigit;
+			#if DEBUG
+				Serial.print("    Digital Write: "); Serial.println(write_value);
+			#endif
+			digitalWrite(pin_number, (write_value != 0));
+		} else if (write_mode == 1) {
+			// PWM Write
+			write_value = readThreeDigits;
+			#if DEBUG
+				Serial.print("    PWM Write: "); Serial.println(write_value);
+			#endif
+			analogWrite(pin_number, write_value);
+		}
+	}
+}
+void ElnCommunicator::readMessageReadPins() {
+	int count = readTwoDigits;
+	#if DEBUG
+		Serial.print("  Count: "); Serial.println(count);
+		Serial.print("  Buffer pointer: "); Serial.println(buffer_pointer);
+	#endif
+	buffer[buffer_pointer++] = 'R'; 
+	intToBuffer(count, 2);
+	for(int i = 0; i < count; i++) {
+		// First two digits: pin number
+		// Third digit: read mode
+		int pin_number = readTwoDigits;
+		int read_mode = readOneDigit;
+		#if DEBUG
+			Serial.print("  "); Serial.print(i); Serial.println(":");
+			Serial.print("    Pin number: "); Serial.println(pin_number);
+			Serial.print("    Read mode: "); Serial.println(read_mode);
+		#endif
+		intToBuffer(pin_number, 2);
+		if(read_mode == 0) {
+			// Digital Read
+			bool read_value = digitalRead(pin_number);
+			#if DEBUG
+				Serial.print("    Digital Read: "); Serial.println(read_value);
+			#endif
+			buffer[buffer_pointer++] = (char)(48 + read_value);
+		} else if(read_mode == 1) {
+			// Digital Read (with pullup)
+			bool read_value = digitalRead(pin_number);
+			#if DEBUG
+				Serial.print("    Digital Read (with pullup): "); Serial.println(read_value);
+			#endif
+			#if	INVERT_READ_PULLUP
+				buffer[buffer_pointer++] = (char)(49 - read_value);
+			#else
+				buffer[buffer_pointer++] = (char)(48 + read_value);
+			#endif
+		} else if (read_mode == 2) {
+			// Analog read
+			int read_value = analogRead(pin_number);
+			#if DEBUG
+				Serial.print("    Analog Read: "); Serial.println(read_value);
+			#endif
+			intToBuffer(read_value, 4);
+		}
+		#if DEBUG
+			Serial.print("    Buffer pointer: "); Serial.println(buffer_pointer);
+		#endif
+	}
+}
+void ElnCommunicator::intToBuffer(int value, int length) {
+	for(int i = 0; i < length; i++) {
+		buffer[buffer_pointer++] = '0';
+	}
+	buffer_pointer -= length;
+	while(value > 0) {
+		buffer[buffer_pointer++] = (char)(value % 10 + 48);
+		value /= 10;
+	}
+}
