@@ -92,34 +92,22 @@ void ElnCommunicator::readSettings() {
 			Serial.print("    Pin number: "); Serial.println(pin_number);
 			Serial.print("    Pin mode: "); Serial.println(pin_mode);
 		#endif
-		if(pin_mode == 1) {
-			// Digital Input
+		if(pin_mode == 0) {
+			// Input
 			#if DEBUG
-				Serial.println("      Digital Input");
+				Serial.println("      Input");
 			#endif
 			pinMode(pin_number, INPUT);
-		} else if(pin_mode == 2) {
-			// Digital Input w/h pullup
+		} else if(pin_mode == 1) {
+			// Input with pullup
 			#if DEBUG
-				Serial.println("      Digital Input w/h pullup");
+				Serial.println("      Input w/h pullup");
 			#endif
 			pinMode(pin_number, INPUT_PULLUP);
-		} else if (pin_mode == 3) {
-			// Digital Output
+		} else if (pin_mode == 2) {
+			// Output
 			#if DEBUG
-				Serial.println("      Digital Output");
-			#endif
-			pinMode(pin_number, OUTPUT);
-        } else if (pin_mode == 4) {
-			// Analog Input
-			#if DEBUG
-				Serial.println("      Analog Input");
-			#endif
-			pinMode(pin_number, INPUT);
-        } else if (pin_mode == 5) {
-			// PWM Output
-			#if DEBUG
-				Serial.println("      PWM Output");
+				Serial.println("      Output");
 			#endif
 			pinMode(pin_number, OUTPUT);
         }
