@@ -1,6 +1,5 @@
 #include <ElnCommunicator.h>
 //settings
-#define INVERT_READ_PULLUP true
 #define DEBUG false
 //defines for reading decimal digits
 #define readOneDigit (Serial.read() - 48)
@@ -179,18 +178,7 @@ void ElnCommunicator::readMessageReadPins() {
 				Serial.print("    Digital Read: "); Serial.println(read_value);
 			#endif
 			buffer[buffer_pointer++] = (char)(48 + read_value);
-		} else if(read_mode == 1) {
-			// Digital Read (with pullup)
-			bool read_value = digitalRead(pin_number);
-			#if DEBUG
-				Serial.print("    Digital Read (with pullup): "); Serial.println(read_value);
-			#endif
-			#if	INVERT_READ_PULLUP
-				buffer[buffer_pointer++] = (char)(49 - read_value);
-			#else
-				buffer[buffer_pointer++] = (char)(48 + read_value);
-			#endif
-		} else if (read_mode == 2) {
+		} else if (read_mode == 1) {
 			// Analog read
 			int read_value = analogRead(pin_number);
 			#if DEBUG
