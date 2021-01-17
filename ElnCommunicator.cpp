@@ -1,7 +1,7 @@
 #include <ElnCommunicator.h>
 //settings
 #define INVERT_READ_PULLUP true
-#define DEBUG true
+#define DEBUG false
 //defines for reading decimal digits
 #define readOneDigit (Serial.read() - 48)
 #define readTwoDigits (readOneDigit * 10 + readOneDigit)
@@ -19,10 +19,10 @@ void ElnCommunicator::GetMessage() {
 			#if DEBUG
 				Serial.println("End of the packet");
 			#endif
-			return;
+			break;
 		} else if(header == ' ' || header == '\t') {
 			// Not to do anything
-			// You can format queries when entering them manually
+			// You can format queries with whitespace symbols when entering them manually
 			#if DEBUG
 				Serial.println("Whitespace");
 			#endif
@@ -53,24 +53,29 @@ void ElnCommunicator::GetMessage() {
 			// Cleaning out the trash
 			#if DEBUG
 				Serial.println("Cleaning out the trash");
+				Serial.write(header);
 			#endif
 			char reading;	
 			do {
+				while(Serial.available() == 0);
 				reading = Serial.read();
+				#if DEBUG
+					Serial.write(reading);
+				#endif
 			} while(reading != '\n');
+			break;
 		}
 	}
-	if(buffer_pointer > 0) {
-		// Write the response and 
-		// reset the pointer to the buffer
-		for(int i = 0; buffer[i] != '\n'; i++) {
-			Serial.write(buffer[i]);
-		}
-		Serial.write('\n');
-		buffer_pointer = 0;
+	// Write the response and 
+	// reset the pointer to the buffer
+	for(int i = 0; i < buffer_pointer; i++) {
+		Serial.write(buffer[i]);
 	}
+	Serial.write('\n');
+	buffer_pointer = 0;
 }
 void ElnCommunicator::readSettings() {
+	while(Serial.available() < 2);
 	int count = readTwoDigits;
 	#if DEBUG
 		Serial.print("  Count: "); Serial.println(count);
@@ -79,6 +84,7 @@ void ElnCommunicator::readSettings() {
 	{
 		//First two digits: pin number
 		//Last digit: pin mode
+		while(Serial.available() < 3);
 		int pin_number = readTwoDigits;
 		int pin_mode = readOneDigit;
 		#if DEBUG
@@ -120,6 +126,7 @@ void ElnCommunicator::readSettings() {
 	}
 }
 void ElnCommunicator::readMessageWritePins() {
+	while(Serial.available() < 2);
 	int count = readTwoDigits;
 	#if DEBUG
 		Serial.print("  Count: "); Serial.println(count);
@@ -128,6 +135,7 @@ void ElnCommunicator::readMessageWritePins() {
 		// First two digits: pin number
 		// Third digit: write mode
 		// The last three (for PWM) or one (for digital) digits: value
+		while(Serial.available() < 3);
 		int pin_number = readTwoDigits;
 		int write_mode = readOneDigit;
 		#if DEBUG
@@ -138,6 +146,7 @@ void ElnCommunicator::readMessageWritePins() {
 		int write_value;
 		if(write_mode == 0) {
 			// Digital Write
+			while(Serial.available() == 0);
 			write_value = readOneDigit;
 			#if DEBUG
 				Serial.print("    Digital Write: "); Serial.println(write_value);
@@ -145,6 +154,7 @@ void ElnCommunicator::readMessageWritePins() {
 			digitalWrite(pin_number, (write_value != 0));
 		} else if (write_mode == 1) {
 			// PWM Write
+			while(Serial.available() < 3);
 			write_value = readThreeDigits;
 			#if DEBUG
 				Serial.print("    PWM Write: "); Serial.println(write_value);
@@ -154,6 +164,7 @@ void ElnCommunicator::readMessageWritePins() {
 	}
 }
 void ElnCommunicator::readMessageReadPins() {
+	while(Serial.available() < 2);
 	int count = readTwoDigits;
 	#if DEBUG
 		Serial.print("  Count: "); Serial.println(count);
@@ -164,6 +175,7 @@ void ElnCommunicator::readMessageReadPins() {
 	for(int i = 0; i < count; i++) {
 		// First two digits: pin number
 		// Third digit: read mode
+		while(Serial.available() < 3);
 		int pin_number = readTwoDigits;
 		int read_mode = readOneDigit;
 		#if DEBUG
@@ -204,12 +216,16 @@ void ElnCommunicator::readMessageReadPins() {
 	}
 }
 void ElnCommunicator::intToBuffer(int value, int length) {
+	// Write this number to the response buffer,
+	// adding leading zeros to the specified length
 	for(int i = 0; i < length; i++) {
 		buffer[buffer_pointer++] = '0';
 	}
-	buffer_pointer -= length;
+	int count = 0;
 	while(value > 0) {
-		buffer[buffer_pointer++] = (char)(value % 10 + 48);
+		buffer[--buffer_pointer] = (char)(value % 10 + 48);
 		value /= 10;
+		count++;
 	}
+	buffer_pointer += (count+1);
 }
