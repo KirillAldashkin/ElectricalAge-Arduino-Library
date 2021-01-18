@@ -3,7 +3,7 @@
 ## About
 This is library for Arduino that allows it to communicate with the "Electrical Age".
 
-"Electrical Age" is a mod for Minecraft, developed by [jrddunbr](https://github.com/jrddunbr) and [his team](https://github.com/jrddunbr/ElectricalAge#main-contributors). It is available [here](https://github.com/jrddunbr/ElectricalAge).
+"Electrical Age" is a mod for Minecraft, developed by [jrddunbr](https://github.com/jrddunbr) and [his team](https://github.com/jrddunbr/ElectricalAge#main-developers). It is available [here](https://github.com/jrddunbr/ElectricalAge).
 
 ## How to get started
 1) **Download** this repository as a ZIP archive (Code > Download ZIP).
