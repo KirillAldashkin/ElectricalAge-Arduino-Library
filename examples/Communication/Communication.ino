@@ -9,8 +9,9 @@ void setup() {
   // ATTENTION: the serial connection is completely
   // occupied by the protocol, you can not write or
   // read anything directly into it!
+  Eln.OpenConnection();
 }
 void loop() {
   // Waiting for a message
-  Eln.GetMessage();
+  Eln.WaitMessage();
 }

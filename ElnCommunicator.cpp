@@ -6,10 +6,15 @@
 #define readTwoDigits (readOneDigit * 10 + readOneDigit)
 #define readThreeDigits (readTwoDigits * 10 + readOneDigit)
 ElnCommunicator::ElnCommunicator() {
-	Serial.begin(115200);
 	buffer_pointer = 0;
 }
-void ElnCommunicator::GetMessage() {
+void ElnCommunicator::OpenConnection() {
+    Serial.begin(115200);
+    Serial.write('I');
+    Serial.print("Board type");
+    Serial.write('\n');
+}
+void ElnCommunicator::WaitMessage() {
 	while(true) {
 		while(Serial.available() == 0);
 		char header = Serial.read();
@@ -30,31 +35,26 @@ void ElnCommunicator::GetMessage() {
 			#if DEBUG
 				Serial.println("Commands for setting pin modes");
 			#endif
-			readSettings(); 
+			readSettings();
 		} else if(header == 'W' || header == 'w') {
 			// Commands to write pin values
 			#if DEBUG
 				Serial.println("Commands to write pin values");
 			#endif
-			readMessageWritePins(); 
+			readMessageWritePins();
 		} else if(header == 'R' || header == 'r') {
 			// Commands to read pin values
 			#if DEBUG
 				Serial.println("Commands to read pin values");
 			#endif
-			readMessageReadPins(); 
-		} else if(header == 'I' || header == 'i') {
-			// TODO: Send the board type
-			#if DEBUG
-				Serial.println("Send the board type");
-			#endif
+			readMessageReadPins();
 		} else {
 			// Cleaning out the trash
 			#if DEBUG
 				Serial.println("Cleaning out the trash");
 				Serial.write(header);
 			#endif
-			char reading;	
+			char reading;
 			do {
 				while(Serial.available() == 0);
 				reading = Serial.read();
@@ -65,7 +65,7 @@ void ElnCommunicator::GetMessage() {
 			break;
 		}
 	}
-	// Write the response and 
+	// Write the response and
 	// reset the pointer to the buffer
 	for(int i = 0; i < buffer_pointer; i++) {
 		Serial.write(buffer[i]);
@@ -157,7 +157,7 @@ void ElnCommunicator::readMessageReadPins() {
 		Serial.print("  Count: "); Serial.println(count);
 		Serial.print("  Buffer pointer: "); Serial.println(buffer_pointer);
 	#endif
-	buffer[buffer_pointer++] = 'R'; 
+	buffer[buffer_pointer++] = 'R';
 	intToBuffer(count, 2);
 	for(int i = 0; i < count; i++) {
 		// First two digits: pin number
@@ -203,5 +203,5 @@ void ElnCommunicator::intToBuffer(int value, int length) {
 		value /= 10;
 		count++;
 	}
-	buffer_pointer += (count+1);
+	buffer_pointer += count;
 }

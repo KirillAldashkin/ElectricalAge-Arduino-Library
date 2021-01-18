@@ -4,7 +4,8 @@
 class ElnCommunicator {
 	public:
 		ElnCommunicator();
-		void GetMessage();
+		void WaitMessage();
+		void OpenConnection();
 	private:
 		void readSettings();
 		void readMessageWritePins();
