@@ -5,13 +5,36 @@
 #define readOneDigit (Serial.read() - 48)
 #define readTwoDigits (readOneDigit * 10 + readOneDigit)
 #define readThreeDigits (readTwoDigits * 10 + readOneDigit)
-ElnCommunicator::ElnCommunicator() {
-	buffer_pointer = 0;
-}
 void ElnCommunicator::OpenConnection() {
     Serial.begin(115200);
-    Serial.write('I');
-    Serial.print("Board type");
+	// Clearing the serial port
+	char reading;
+	do {
+		while(Serial.available() == 0);
+		reading = Serial.read();
+	} while(reading != '\n');
+    // Waiting for the connection request
+	while(Serial.available() < 2);
+	char a = Serial.read();
+	char b = Serial.read();
+	while(true) {
+		while(Serial.available() > 0) {
+			a = b;	
+			b = Serial.read();
+		}
+		if(a == 'C' && b == '\n') break;
+	}
+	// Sending the type of board
+	Serial.write('I'); // Header
+	#if defined(__AVR_ATmega328__) // Arduino Uno
+		Serial.print("UNO_");
+	#elif defined(__AVR_ATmega2560__) // Arduino Mega
+		Serial.print("MEGA");
+	#elif defined(__AVR_ATmega32u__) // Arduino Nano / Arduino Mini
+		Serial.print("NANO");
+	#else
+		Serial.print("UNKNOWN"); // Unknown board type (or my code doesn't work lol)
+	#endif
     Serial.write('\n');
 }
 void ElnCommunicator::WaitMessage() {
