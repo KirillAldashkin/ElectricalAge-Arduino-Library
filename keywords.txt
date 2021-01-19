@@ -1,0 +1,9 @@
+# Classes
+ElnCommunicator	KEYWORD1
+
+# Methods
+WaitMessage	KEYWORD2
+OpenConnection	KEYWORD2
+
+# Other stuff
+Channels	LITERAL1
