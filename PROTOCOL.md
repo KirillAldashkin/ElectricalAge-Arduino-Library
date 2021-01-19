@@ -67,6 +67,6 @@ For example, the command "R02140081" means that:
 
 The response "R02140768081" means that:
 1) On pin 14, the signal is 768/1024.
-2) On pin 3, the signal is high.
+2) On pin 8, the signal is high.
 
 ![logo](https://raw.githubusercontent.com/jrddunbr/electrical-age.github.io/master/assets/favicon.ico)
