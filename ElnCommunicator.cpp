@@ -38,14 +38,62 @@ void ElnCommunicator::OpenConnection() {
 	}
 	// Sending the type of board
 	Serial.write('I'); // Header
-	#if defined(__AVR_ATmega328__) // Arduino Uno
-		Serial.print("UNO_");
-	#elif defined(__AVR_ATmega2560__) // Arduino Mega
-		Serial.print("MEGA");
-	#elif defined(__AVR_ATmega32u__) // Arduino Nano / Arduino Mini
-		Serial.print("NANO");
-	#else
-		Serial.print("UNKNOWN"); // Unknown board type (or my code doesn't work lol)
+	#if defined(ARDUINO_AVR_YUN)               // Arduino Yun
+		Serial.print("YUN______________");
+	#elif defined(ARDUINO_AVR_UNO)             // Arduino Uno
+		Serial.print("UNO______________");
+	#elif defined(ARDUINO_AVR_DUEMILANOVE)     // Arduino Duemilanove or Diecimila
+		Serial.print("DUEMILANOVE______");
+	#elif defined(ARDUINO_AVR_NANO)            // Arduino Nano
+		Serial.print("NANO_____________");
+	#elif defined(ARDUINO_AVR_MEGA2560)        // Arduino Mega (ATMega 2560)
+		Serial.print("MEGA2560_________");
+	#elif defined(ARDUINO_AVR_MEGA)            // Arduino Mega (ATMega 1280)
+		Serial.print("MEGA1280_________");
+	#elif defined(ARDUINO_AVR_ADK)             // Arduino Mega ADK
+		Serial.print("MEGAADK__________");
+	#elif defined(ARDUINO_AVR_LEONARDO)        // Arduino Leonardo
+		Serial.print("LEONARDO_________");
+	#elif defined(ARDUINO_AVR_LEONARDO_ETH)    // Arduino Leonardo ETH
+		Serial.print("LEONARDOETH______");
+	#elif defined(ARDUINO_AVR_MICRO)           // Arduino Micro
+		Serial.print("MICRO____________");
+	#elif defined(ARDUINO_AVR_ESPLORA)         // Arduino Esplora
+		Serial.print("ESPLORA__________");
+	#elif defined(ARDUINO_AVR_MINI)            // Arduino Mini
+		Serial.print("MINI_____________");
+	#elif defined(ARDUINO_AVR_ETHERNET)        // Arduino Ethernet
+		Serial.print("ETHERNET_________");
+	#elif defined(ARDUINO_AVR_FIO)             // Arduino Fio
+		Serial.print("FIO______________");
+	#elif defined(ARDUINO_AVR_BT)              // Arduino BT
+		Serial.print("BT_______________");
+	#elif defined(ARDUINO_AVR_LILYPAD_USB)     // LilyPad Arduino USB
+		Serial.print("LILYPADUSB_______");
+	#elif defined(ARDUINO_AVR_LILYPAD)         // LilyPad Arduino
+		Serial.print("LILYPAD__________");
+	#elif defined(ARDUINO_AVR_PRO)             // Arduino Pro or Pro Mini
+		Serial.print("PRO______________");
+	#elif defined(ARDUINO_AVR_NG)              // Arduino NG or Older
+		Serial.print("NG_______________");
+	#elif defined(ARDUINO_AVR_ROBOT_CONTROL)   // Arduino Robot Control
+		Serial.print("ROBOTCONTROL_____");
+	#elif defined(ARDUINO_AVR_ROBOT_MOTOR)     // Arduino Robot Motor
+		Serial.print("ROBOTMOTOR_______");
+	#elif defined(ARDUINO_AVR_GEMMA)           // Arduino Gemma
+		Serial.print("GEMMA____________");
+	#elif defined(ARDUINO_AVR_CIRCUITPLAY)     // Adafruit Circuit Playground
+		Serial.print("CIRCUITPLAYGROUND");
+	#elif defined(ARDUINO_AVR_YUNMINI)         // Arduino Yun Mini
+		Serial.print("YUNMINI__________");
+	#elif defined(ARDUINO_AVR_INDUSTRIAL101)   // Arduino Industrial 101
+		Serial.print("INDUSTRIAL101____");
+	#elif defined(ARDUINO_AVR_LININO_ONE)      // Arduino Linino one
+		Serial.print("LININOONE________");
+	#elif defined(ARDUINO_AVR_UNO_WIFI_DEV_ED) // Arduino Uno WiFi
+		Serial.print("UNOWIFI__________");
+	#else                                      // Unknown 
+		Serial.print("UNKNOWN__________");
 	#endif
     Serial.write('\n');
 }
