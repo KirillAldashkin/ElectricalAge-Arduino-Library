@@ -23,6 +23,7 @@ Try to communicate with Arduino via this protocol via the port monitor:
     a few more times.
 Learn more about this protocol here: https://github.com/KirillAldashkin/ElectricalAge-Arduino-Library/blob/main/PROTOCOL.md
 */
+
 void setup() {
   /*
   You do not need to start Serial,
