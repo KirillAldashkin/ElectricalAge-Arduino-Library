@@ -1,7 +1,7 @@
 [back to README](./README.md)
 # Features
-## 1) Working with pins.
-You can read, write values and set pin modes from PC
+## 1) Working with pins
+You can read, write values and set pin modes from PC.
 ## 2) Numerical channels
 You will have 32 channels at your disposal, where both the PC and the Arduino will be able to write and read values.
 

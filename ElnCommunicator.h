@@ -15,6 +15,5 @@ class ElnCommunicator {
 		void intToBuffer(int value, int length);
 		char buffer[512]; // The response buffer
 		int buffer_pointer = 0;
-		
 };
 #endif
