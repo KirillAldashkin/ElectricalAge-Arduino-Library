@@ -2,7 +2,7 @@
 # Protocol
 
 ## About
-This protocol is an add-on over RS232, and operates at a speed of 115200 baud.
+This protocol is an add-on over RS232, and operates at a speed of 500000 baud.
 Messages are sent in packets. One packet from PC - one response from Arduino.
 
 *IMPORTANT: When sending numbers, they must have a fixed length.

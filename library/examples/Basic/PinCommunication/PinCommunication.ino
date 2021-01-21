@@ -5,7 +5,7 @@ ElnCommunicator Eln = ElnCommunicator();
 
 /*
 Try to communicate with Arduino via this protocol via the port monitor:
- 0) Make sure that the connection speed is 115200 baud,
+ 0) Make sure that the connection speed is 500000 baud,
     and that the newline character is "NL".
  1) First send a connection request: "C". Arduino will respond
     with "I%type%", where %type% is the board type.

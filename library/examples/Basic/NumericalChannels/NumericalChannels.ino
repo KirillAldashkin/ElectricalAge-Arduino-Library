@@ -21,7 +21,7 @@ servomotor angle recorded in this channel. And the Arduino reads the humidity
 level from the sensor and writes this value to channel 1, and the PC reads it.
 
 Try controlling the numerical channels through the port monitor:
- 0) Make sure that the connection speed is 115200 baud,
+ 0) Make sure that the connection speed is 500000 baud,
     and that the newline character is "NL".
  1) First send a connection request: "C". Arduino will respond
     with "I%type%", where %type% is the board type.
