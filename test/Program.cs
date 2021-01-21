@@ -10,7 +10,7 @@ using System.Threading;
 */
 
 // COM Port speed
-const int SPEED = 115200;
+const int SPEED = 500000;
 // Options for establishing the connection
 const int CONNECT_REQUEST_DELAY = 25;
 const int MAX_CONNECT_REQUESTS = 16;
@@ -79,7 +79,7 @@ while(true) {
     Console.WriteLine(new string(' ', Console.WindowWidth - Console.CursorLeft));
     Console.CursorTop--;
 }
-
+// Exit function
 void Exit(string e = "", int code = 0) {
     port.Close();
     if(e != "") {

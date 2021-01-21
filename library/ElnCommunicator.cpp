@@ -12,7 +12,7 @@ void ElnCommunicator::OpenConnection() {
     #if DEBUG
 		Serial.println("Wait connection request");
 	#endif
-	Serial.begin(115200);
+	Serial.begin(500000);
 	// Clearing the serial port
 	char reading;
 	do {
