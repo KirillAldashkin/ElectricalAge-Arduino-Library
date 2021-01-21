@@ -1,5 +1,4 @@
-# ElectricalAge-Arduino-Library
-
+![logo](https://raw.githubusercontent.com/KirillAldashkin/ElectricalAge-Arduino-Library/main/graphics/big_logo.png)
 ## About
 This is library for Arduino that allows it to communicate with the "Electrical Age".
 
