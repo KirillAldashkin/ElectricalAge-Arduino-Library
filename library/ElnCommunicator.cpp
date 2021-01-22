@@ -1,18 +1,43 @@
 #include <ElnCommunicator.h>
-//settings
+// Settings
 #define DEBUG false
-//defines for reading decimal digits
+// Defines for reading decimal digits
 #define readOneDigit (Serial.read() - 48)
 #define readTwoDigits (readOneDigit * 10 + readOneDigit)
 #define readThreeDigits (readTwoDigits * 10 + readOneDigit)
 #define readFourDigits (readThreeDigits * 10 + readOneDigit)
 #define readFiveDigits (readFourDigits * 10 + readOneDigit)
+// Define to check if the pin is blocked
 
+bool ElnCommunicator::IsLocked(int pin) {
+	return ((lock_flags[pin/8]&((uint8_t)(1<<(pin%8))))>0);
+}
+void ElnCommunicator::LockPin(int pin) {
+	lock_flags[pin/8] = lock_flags[pin/8] | ((uint8_t)(1<<(pin%8)));
+	#if DEBUG
+		Serial.print("Pin "); Serial.print(pin); Serial.println(" is now blocked.");
+		Serial.println("Current status of the flags:");
+		for(int i = 0; i < 8; i++) {
+			Serial.println(lock_flags[i], BIN);
+		}
+	#endif
+}
+void ElnCommunicator::UnlockPin(int pin) {
+	lock_flags[pin/8] = lock_flags[pin/8] & (~(uint8_t)(1<<(pin%8)));
+	#if DEBUG
+		Serial.print("Pin "); Serial.print(pin); Serial.println(" is now unblocked.");
+		Serial.println("Current status of the flags:");
+		for(int i = 0; i < 8; i++) {
+			Serial.println(lock_flags[i], BIN);
+		}
+	#endif
+}
 void ElnCommunicator::OpenConnection() {
-    #if DEBUG
+	#if DEBUG != true
+		Serial.begin(500000);
+	#else
 		Serial.println("Wait connection request");
 	#endif
-	Serial.begin(500000);
 	// Clearing the serial port
 	char reading;
 	do {
@@ -170,8 +195,8 @@ void ElnCommunicator::readSettings() {
 	#endif
 	for(int i = 0; i < count; i++)
 	{
-		//First two digits: pin number
-		//Last digit: pin mode
+		// First two digits: pin number
+		// Last digit: pin mode
 		while(Serial.available() < 3);
 		int pin_number = readTwoDigits;
 		int pin_mode = readOneDigit;
@@ -179,26 +204,31 @@ void ElnCommunicator::readSettings() {
 			Serial.print("  "); Serial.print(i); Serial.println(":");
 			Serial.print("    Pin number: "); Serial.println(pin_number);
 			Serial.print("    Pin mode: "); Serial.println(pin_mode);
+			if(IsLocked(pin_number)) {
+				Serial.println("    Pin is blocked!");
+			}
 		#endif
-		if(pin_mode == 0) {
-			// Input
-			#if DEBUG
-				Serial.println("      Input");
-			#endif
-			pinMode(pin_number, INPUT);
-		} else if(pin_mode == 1) {
-			// Input with pullup
-			#if DEBUG
-				Serial.println("      Input w/h pullup");
-			#endif
-			pinMode(pin_number, INPUT_PULLUP);
-		} else if (pin_mode == 2) {
-			// Output
-			#if DEBUG
-				Serial.println("      Output");
-			#endif
-			pinMode(pin_number, OUTPUT);
-        }
+		if(!IsLocked(pin_number)) {
+			if(pin_mode == 0) {
+				// Input
+				#if DEBUG
+					Serial.println("      Input");
+				#endif
+				pinMode(pin_number, INPUT);
+			} else if(pin_mode == 1) {
+				// Input with pullup
+				#if DEBUG
+					Serial.println("      Input w/h pullup");
+				#endif
+				pinMode(pin_number, INPUT_PULLUP);
+			} else if (pin_mode == 2) {
+				// Output
+				#if DEBUG
+					Serial.println("      Output");
+				#endif
+				pinMode(pin_number, OUTPUT);
+			}
+		}
 	}
 }
 void ElnCommunicator::readMessageWritePins() {
@@ -218,6 +248,9 @@ void ElnCommunicator::readMessageWritePins() {
 			Serial.print("  "); Serial.print(i); Serial.println(":");
 			Serial.print("    Pin number: "); Serial.println(pin_number);
 			Serial.print("    Write mode: "); Serial.println(write_mode);
+			if(IsLocked(pin_number)) {
+				Serial.println("    Pin is blocked!");
+			}
 		#endif
 		int write_value;
 		if(write_mode == 0) {
@@ -227,7 +260,9 @@ void ElnCommunicator::readMessageWritePins() {
 			#if DEBUG
 				Serial.print("    Digital Write: "); Serial.println(write_value);
 			#endif
-			digitalWrite(pin_number, (write_value != 0));
+			if(!IsLocked(pin_number)) {
+				digitalWrite(pin_number, (write_value != 0));
+			}
 		} else if (write_mode == 1) {
 			// PWM Write
 			while(Serial.available() < 3);
@@ -237,7 +272,9 @@ void ElnCommunicator::readMessageWritePins() {
 			#if DEBUG
 				Serial.print("    PWM Write: "); Serial.println(write_value);
 			#endif
-			analogWrite(pin_number, write_value);
+			if(!IsLocked(pin_number)) {
+				analogWrite(pin_number, write_value);
+			}
 		}
 	}
 }

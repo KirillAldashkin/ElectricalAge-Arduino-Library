@@ -4,6 +4,9 @@ ElnCommunicator	KEYWORD1
 # Methods
 WaitMessage	KEYWORD2
 OpenConnection	KEYWORD2
+LockPin	KEYWORD2
+UnlockPin	KEYWORD2
+IsLocked	KEYWORD2
 
 # Other stuff
 Channels	LITERAL1
