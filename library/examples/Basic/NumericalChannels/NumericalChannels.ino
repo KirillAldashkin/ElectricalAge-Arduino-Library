@@ -1,12 +1,9 @@
 #include <ElnCommunicator.h>
-#include <Servo.h>
-#define SERVO_PIN 9
+#define LED_PIN 9
 #define POT_PIN A0
 
 // Initializing the protocol
 ElnCommunicator Eln = ElnCommunicator();
-// Initializing the servo
-Servo servo;
 
 /*
 Unfortunately, ElectricalAge can directly perform simple work with pins, but
@@ -26,8 +23,8 @@ Try controlling the numerical channels through the port monitor:
  1) First send a connection request: "C". Arduino will respond
     with "I%type%", where %type% is the board type.
     The connection is established.
- 2) Send the command "N0100100090". The servo motor will rotate at an angle of
-    90 degrees. Try entering a different number instead of 00090, but add up to
+ 2) Send the command "N0100100127". The LED will light up halfway.
+    Try entering a different number instead of 00127, but add up to
     5 digits with leading zeros. Also you will get a response of "N00", which
     means that you did not count any channels, only wrote them down.
  3) Send the command "N01010". You will get the answer "N0101XXXXX",
@@ -35,11 +32,11 @@ Try controlling the numerical channels through the port monitor:
 */
 
 void setup() {
+  // Setting up and locking the pin
+  pinMode(LED_PIN, OUTPUT);
+  Eln.LockPin(LED_PIN);
   // Waiting for a connection request
   Eln.OpenConnection();
-  // Connect and reset the servo
-  servo.attach(9);
-  servo.write(0);
 }
 int val;
 void loop() {
@@ -48,7 +45,8 @@ void loop() {
   Eln.Channels[1] = analogRead(POT_PIN);
   // Waiting for a message
   Eln.WaitMessage();
-  // Value processing and servo rotation
-  val = constrain(Eln.Channels[0], 0, 180);
-  servo.write(val);
+  // Processing the value from channel 0 and writing it to the LED
+  // (it can be a complex device instead).
+  val = constrain(Eln.Channels[0], 0, 255);
+  analogWrite(LED_PIN, val);
 }
