@@ -7,7 +7,6 @@
 #define readThreeDigits (readTwoDigits * 10 + readOneDigit)
 #define readFourDigits (readThreeDigits * 10 + readOneDigit)
 #define readFiveDigits (readFourDigits * 10 + readOneDigit)
-// Define to check if the pin is blocked
 
 bool ElnCommunicator::IsLocked(int pin) {
 	return ((lock_flags[pin/8]&((uint8_t)(1<<(pin%8))))>0);
