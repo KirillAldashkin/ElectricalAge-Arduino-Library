@@ -7,4 +7,4 @@ You will have 32 channels at your disposal, where both the PC and the Arduino wi
 ## 3) Pin Blocking
 You will be able to lock pins on the Arduino and work with them without fear that its value or mode will change from the PC.
 
-![logo](https://raw.githubusercontent.com/jrddunbr/electrical-age.github.io/master/assets/favicon.ico)
+![logo](https://raw.githubusercontent.com/KirillAldashkin/ElectricalAge-Arduino-Library/main/graphics/bottom.png)

@@ -23,4 +23,4 @@ by entering the pins that are suitable for your board.
 * Open the console in the *"\test"* folder and enter the command: `dotnet build`. It compiles the code.
 * Then enter the command `dotnet bin\Debug\net5.0\test.dll`. It will launch the program. Follow the program instructions.
 
-![logo](https://raw.githubusercontent.com/jrddunbr/electrical-age.github.io/master/assets/favicon.ico)
+![logo](https://raw.githubusercontent.com/KirillAldashkin/ElectricalAge-Arduino-Library/main/graphics/bottom.png)

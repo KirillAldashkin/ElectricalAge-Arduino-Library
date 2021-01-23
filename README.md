@@ -19,4 +19,4 @@ This is library for Arduino that allows it to communicate with the "Electrical A
 * This library uses its own [protocol](./PROTOCOL.md), which completely occupies the serial port.
 * All features of the library are described [here](./FEATURES.md).
 
-![logo](https://raw.githubusercontent.com/jrddunbr/electrical-age.github.io/master/assets/favicon.ico)
+![logo](https://raw.githubusercontent.com/KirillAldashkin/ElectricalAge-Arduino-Library/main/graphics/bottom.png)

@@ -89,4 +89,4 @@ A response is added for each channel read:
 >1) Two-digit number - channel number.
 >2) The value recorded in the channel. The same principle is used as when sending a request.
 
-![logo](https://raw.githubusercontent.com/jrddunbr/electrical-age.github.io/master/assets/favicon.ico)
+![logo](https://raw.githubusercontent.com/KirillAldashkin/ElectricalAge-Arduino-Library/main/graphics/bottom.png)
