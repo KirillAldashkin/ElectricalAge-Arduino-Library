@@ -1,4 +1,4 @@
-[back to README](./README.md)
+[back to main](https://github.com/KirillAldashkin/ElectricalAge-Arduino-Library)
 # Features
 ## 1) Working with pins
 You can read, write values and set pin modes from PC.

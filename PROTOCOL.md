@@ -1,4 +1,4 @@
-[back to README](./README.md)
+[back to main](https://github.com/KirillAldashkin/ElectricalAge-Arduino-Library)
 # Protocol
 
 ## About
