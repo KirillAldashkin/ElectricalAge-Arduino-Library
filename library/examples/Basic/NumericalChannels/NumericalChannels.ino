@@ -18,8 +18,11 @@ servomotor angle recorded in this channel. And the Arduino reads the humidity
 level from the sensor and writes this value to channel 1, and the PC reads it.
 
 Try controlling the numerical channels through the port monitor:
- 0) Make sure that the connection speed is 500000 baud,
-    and that the newline character is "NL".
+ 0) a) Connect LED to some PWN pin and potentiometer to some analog input.
+       Change the LED_PIN and POT_PIN to the pin numbers that you
+       connected the LED and the potentiometer to.
+    b) Make sure that the connection speed is 500000 baud,
+       and that the newline character is "NL".
  1) First send a connection request: "C". Arduino will respond
     with "I%type%", where %type% is the board type.
     The connection is established.

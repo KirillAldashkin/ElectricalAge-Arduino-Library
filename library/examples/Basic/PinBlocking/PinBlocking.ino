@@ -15,8 +15,10 @@ which removes the ban on editing the pin from the outside, and the isLocked(int 
 function, which determines whether the pin is blocked.
 
 Try to check out this functionality:
- 0) Make sure that the connection speed is 500000 baud,
-    and that the newline character is "NL".
+ 0) a) Connect LED to some PWN pin. Change the LED_PIN to the pin
+       number that you connected the LED to.
+    b) Make sure that the connection speed is 500000 baud,
+       and that the newline character is "NL".
  1) First send a connection request: "C". Arduino will respond
     with "I%type%", where %type% is the board type. The connection
     is established, and the LED starts flashing.

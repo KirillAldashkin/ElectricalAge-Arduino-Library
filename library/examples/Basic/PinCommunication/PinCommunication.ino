@@ -27,7 +27,7 @@ Learn more about this protocol here: https://github.com/KirillAldashkin/Electric
 void setup() {
   /*
   You do not need to start Serial,
-  it starts automatically at a speed of 115200
+  it starts automatically at a speed of 500000
   ATTENTION: the serial connection is completely
   occupied by the protocol, you can not write or
   read anything directly into it!
