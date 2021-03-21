@@ -1,0 +1,5 @@
+#.Net 5.0 building files
+test/bin
+test/obj
+#Visual Studio files
+.vs
