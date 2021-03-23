@@ -2,8 +2,11 @@
 ElnCommunicator	KEYWORD1
 
 # Methods
+IsConnected	KEYWORD2
+CheckMessage	KEYWORD2
 WaitMessage	KEYWORD2
-OpenConnection	KEYWORD2
+TryOpenConnection	KEYWORD2
+WaitOpenConnection	KEYWORD2
 LockPin	KEYWORD2
 UnlockPin	KEYWORD2
 IsLocked	KEYWORD2

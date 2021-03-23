@@ -1,13 +1,15 @@
 #include <ElnCommunicator.h>
-// Settings
-#define DEBUG false
 // Defines for reading decimal digits
 #define readOneDigit (Serial.read() - 48)
 #define readTwoDigits (readOneDigit * 10 + readOneDigit)
 #define readThreeDigits (readTwoDigits * 10 + readOneDigit)
 #define readFourDigits (readThreeDigits * 10 + readOneDigit)
 #define readFiveDigits (readFourDigits * 10 + readOneDigit)
-
+// API
+bool ElnCommunicator::IsConnected()
+{
+	return connected;
+}
 bool ElnCommunicator::IsLocked(int pin) {
 	return ((lock_flags[pin/8]&((uint8_t)(1<<(pin%8))))>0);
 }
@@ -15,25 +17,39 @@ void ElnCommunicator::LockPin(int pin) {
 	lock_flags[pin/8] = lock_flags[pin/8] | ((uint8_t)(1<<(pin%8)));
 	#if DEBUG
 		Serial.print("Pin "); Serial.print(pin); Serial.println(" is now blocked.");
-		Serial.println("Current status of the flags:");
-		for(int i = 0; i < 8; i++) {
-			Serial.println(lock_flags[i], BIN);
-		}
+		debugPrintLockFlags();
 	#endif
 }
 void ElnCommunicator::UnlockPin(int pin) {
 	lock_flags[pin/8] = lock_flags[pin/8] & (~(uint8_t)(1<<(pin%8)));
 	#if DEBUG
 		Serial.print("Pin "); Serial.print(pin); Serial.println(" is now unblocked.");
-		Serial.println("Current status of the flags:");
-		for(int i = 0; i < 8; i++) {
-			Serial.println(lock_flags[i], BIN);
-		}
+		debugPrintLockFlags();
 	#endif
 }
-void ElnCommunicator::OpenConnection() {
+bool ElnCommunicator::TryOpenConnection()
+{
+	// If already connected or there is no data, then do nothing
+	if (connected)
+		return true;
 	#if DEBUG != true
-		Serial.begin(500000);
+		if (!serial_opened)
+			Serial.begin(SPEED);
+		serial_opened = true;
+	#endif
+	if (Serial.available() == 0)
+		return false;
+	// Otherwise connect
+	WaitOpenConnection();
+	return true;
+}
+void ElnCommunicator::WaitOpenConnection() {
+	if (connected)
+		return;
+	#if DEBUG != true
+		if(!serial_opened)
+			Serial.begin(SPEED);
+		serial_opened = true;
 	#else
 		Serial.println("Wait connection request");
 	#endif
@@ -58,7 +74,8 @@ void ElnCommunicator::OpenConnection() {
 		#if DEBUG
 			Serial.print("Symbols are: "); Serial.print(a); Serial.println(b);
 		#endif
-		if(a == 'C' && b == '\n') break;
+		if(a == 'C' && b == '\n')
+			break;
 	}
 	// Sending the type of board
 	Serial.write('I'); // Header
@@ -120,6 +137,16 @@ void ElnCommunicator::OpenConnection() {
 		Serial.print("UNKNOWN__________");
 	#endif
     Serial.write('\n');
+	connected = true;
+}
+bool ElnCommunicator::CheckMessage()
+{
+	// If there is no data, then do nothing
+	if (Serial.available() == 0)
+		return false;
+	// Otherwise get a message
+	WaitMessage();
+	return true;
 }
 void ElnCommunicator::WaitMessage() {
 	while(true) {
@@ -142,7 +169,7 @@ void ElnCommunicator::WaitMessage() {
 			#if DEBUG
 				Serial.println("Commands for setting pin modes");
 			#endif
-			readSettings();
+			changePinModes();
 		} else if(header == 'W' || header == 'w') {
 			// Commands to write pin values
 			#if DEBUG
@@ -180,13 +207,13 @@ void ElnCommunicator::WaitMessage() {
 	}
 	// Write the response and
 	// reset the pointer to the buffer
-	for(int i = 0; i < buffer_pointer; i++) {
+	for(int i = 0; i < buffer_pointer; i++)
 		Serial.write(buffer[i]);
-	}
 	Serial.write('\n');
 	buffer_pointer = 0;
 }
-void ElnCommunicator::readSettings() {
+// Routine
+void ElnCommunicator::changePinModes() {
 	while(Serial.available() < 2);
 	int count = readTwoDigits;
 	#if DEBUG
@@ -203,9 +230,8 @@ void ElnCommunicator::readSettings() {
 			Serial.print("  "); Serial.print(i); Serial.println(":");
 			Serial.print("    Pin number: "); Serial.println(pin_number);
 			Serial.print("    Pin mode: "); Serial.println(pin_mode);
-			if(IsLocked(pin_number)) {
+			if(IsLocked(pin_number))
 				Serial.println("    Pin is blocked!");
-			}
 		#endif
 		if(!IsLocked(pin_number)) {
 			if(pin_mode == 0) {
@@ -247,9 +273,8 @@ void ElnCommunicator::readMessageWritePins() {
 			Serial.print("  "); Serial.print(i); Serial.println(":");
 			Serial.print("    Pin number: "); Serial.println(pin_number);
 			Serial.print("    Write mode: "); Serial.println(write_mode);
-			if(IsLocked(pin_number)) {
+			if(IsLocked(pin_number))
 				Serial.println("    Pin is blocked!");
-			}
 		#endif
 		int write_value;
 		if(write_mode == 0) {
@@ -259,9 +284,8 @@ void ElnCommunicator::readMessageWritePins() {
 			#if DEBUG
 				Serial.print("    Digital Write: "); Serial.println(write_value);
 			#endif
-			if(!IsLocked(pin_number)) {
+			if(!IsLocked(pin_number))
 				digitalWrite(pin_number, (write_value != 0));
-			}
 		} else if (write_mode == 1) {
 			// PWM Write
 			while(Serial.available() < 3);
@@ -271,9 +295,8 @@ void ElnCommunicator::readMessageWritePins() {
 			#if DEBUG
 				Serial.print("    PWM Write: "); Serial.println(write_value);
 			#endif
-			if(!IsLocked(pin_number)) {
+			if(!IsLocked(pin_number))
 				analogWrite(pin_number, write_value);
-			}
 		}
 	}
 }
@@ -385,6 +408,9 @@ void ElnCommunicator::editChannels() {
 		intToBuffer(readed_count, 2);
 		buffer_pointer = cur_pointer;
 	}
+	#if  DEBUG
+		debugPrintChannels();
+	#endif
 }
 void ElnCommunicator::intToBuffer(int value, int length) {
 	// Write this number to the response buffer,
@@ -399,3 +425,48 @@ void ElnCommunicator::intToBuffer(int value, int length) {
 	}
 	buffer_pointer += count;
 }
+// Debug stuff
+#if DEBUG
+String ElnCommunicator::intToString(int16_t val)
+{
+	int16_t value = val;
+	String ret = "      ";
+	if (value < 0)
+	{
+		ret[0] = '-';
+		value *= -1;
+	}
+	else if (value > 0)
+		ret[0] = '+';
+	else
+		ret[0] = ' ';
+	int pos = 5;
+	while (value > 0)
+	{
+		ret[pos--] = (value%10) + '0';
+		value /= 10;
+	}
+	return ret;
+}
+void ElnCommunicator::debugPrintLockFlags()
+{
+	Serial.println("Current status of the flags:");
+	for (int i = 0; i < 8; i++)
+		Serial.print(lock_flags[i], BIN);
+	Serial.println();
+}
+void ElnCommunicator::debugPrintChannels()
+{
+	Serial.println("Current channel values:");
+	Serial.println("**|    *0|    *1|    *2|    *3|    *4|    *5|    *6|    *7|");
+	for (int i = 0; i < 4; i++)
+	{
+		Serial.print(i); Serial.print("*|");
+		for (int j = 0; j < 8; j++)
+		{
+			Serial.print(intToString(Channels[i * 8 + j])); Serial.print('|');
+		}
+		Serial.println();
+	}
+}
+#endif
