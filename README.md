@@ -24,7 +24,7 @@ This library uses its own [protocol](./PROTOCOL.md), which completely occupies t
 
 ## Files
 * `library\` - the entire library for Arduino
-* `test\` - stress test of the protocol. Read more [here](./STRESSTEST.md)
+* `test\` - stress test of the protocol. Read more [here](./test)
 * `*.md` - description files
 * `setup.bat` - the installation script
 
