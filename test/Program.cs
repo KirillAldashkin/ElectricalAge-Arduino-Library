@@ -20,6 +20,11 @@ const int NumericChannelsCount = 32;
 int[] DigitalReadPins = { 2, 4, 7, 8, 12, 13 };
 int[] AnalogReadPins = { 14, 15, 16, 17, 18, 19 };
 int[] PWMWritePins = { 3, 5, 6, 9, 10, 11 };
+// Port for future use
+SerialPort currentPort = new();
+// Some events
+Console.CancelKeyPress += (s, e) => Exit("User cancelled", 0, false);
+AppDomain.CurrentDomain.UnhandledException += (s, e) => Exit($"Unhandled exception:\r\n{e.ExceptionObject}", 4, false);
 
 
 // Getting the port name
@@ -31,7 +36,6 @@ var currentPortName = Console.ReadLine();
 
 // Opening the COM port
 Console.WriteLine($"The \'{currentPortName}\' port is selected.");
-SerialPort currentPort = new();
 Console.Write("Opening the port... ");
 try
 {
@@ -42,7 +46,7 @@ try
 catch (Exception e)
 {
     Console.WriteLine();
-    Exit(e.ToString(), 1);
+    Exit($"Error while opening COM port:\r\n{e}", 1);
 }
 Console.WriteLine($"Done.");
 
@@ -61,14 +65,16 @@ while (currentPort.BytesToRead == 0 && requestNumber <= MaximumConnectRequests)
 }
 if (requestNumber > MaximumConnectRequests)
     Exit($"The response was not received after {MaximumConnectRequests} requests.", 2);
-var boardType = currentPort.ReadLine().Substring(1).TrimEnd('_');
+var boardType = currentPort.ReadLine();
+if(boardType.Length == 0 || boardType[0] != 'I')
+    Exit($"The answer (\"{boardType}\") is not the type of board (maybe the board was already enabled earlier).", 3, true);
 Console.WriteLine();
-Console.WriteLine($"The connection is established. Board Type: {boardType}");
+Console.WriteLine($"The connection is established. Board Type: {boardType.Substring(1).TrimEnd('_')}");
 
 // Stress Test
 Stopwatch delayCounter = new();
 DateTime lastPrintTime = new(0);
-while (true)
+while (currentPort.IsOpen)
 {
     var request = GeneratePacket();
     delayCounter.Reset();
@@ -98,21 +104,30 @@ while (true)
 }
 
 // Exit function
-void Exit(string e = "", int code = 0)
+void Exit(string info = "", int code = 0, bool waitExit = true)
 {
     currentPort.Close();
-    // Print an error if there is one
-    if (e != "")
+    // Print a info if any
+    if (info != "")
     {
         var c = Console.ForegroundColor;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine();
-        Console.WriteLine("Error:");
-        Console.WriteLine(e);
+        // If this is an error
+        if (code != 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine();
+            Console.WriteLine("Error:");
+        }
+        else
+            Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(info);
         Console.ForegroundColor = c;
     }
-    Console.Write("Press any key to exit...");
-    Console.ReadKey(true);
+    if (waitExit)
+    {
+        Console.Write("Press any key to exit...");
+        Console.ReadKey(true);
+    }
     Environment.Exit(code);
 }
 
