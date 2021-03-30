@@ -13,9 +13,9 @@ This is important because in a game, one tick lasts 1/20 of a second, and the Ar
 
 ```C#
 // Pin parameters
-int[] DIGITAL_READ = {2, 4, 7, 8, 12, 13};
-int[] ANALOG_READ = {14, 15, 16, 17, 18, 19};
-int[] PWM_WRITE = {3, 5, 6, 9, 10, 11};
+int[] DigitalReadPins = { 2, 4, 7, 8, 12, 13 };
+int[] AnalogReadPins = { 14, 15, 16, 17, 18, 19 };
+int[] PWMWritePins = { 3, 5, 6, 9, 10, 11 };
 ```
 
 by entering the pins that are suitable for your board (By default, the pins for the *Arduino Uno* are entered).

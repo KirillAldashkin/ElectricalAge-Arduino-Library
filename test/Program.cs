@@ -98,7 +98,7 @@ while (currentPort.IsOpen)
         };
         var oldCoursorTop = Console.CursorTop;
         foreach (var s in info)
-            Console.WriteLine(s.PadRight(Console.WindowWidth));
+            Console.WriteLine(s + "    "); // Spaces to protect against repeated characters when the string is reduced.
         Console.CursorTop = oldCoursorTop;
     }
 }
