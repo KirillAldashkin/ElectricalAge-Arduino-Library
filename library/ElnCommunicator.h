@@ -26,9 +26,9 @@ class ElnCommunicator {
 		bool serial_opened = false;
 		uint8_t lock_flags[8] = {0,0,0,0,0,0,0,0};
 		#if DEBUG
-			String ElnCommunicator::intToString(int16_t value);
-			void ElnCommunicator::debugPrintLockFlags();
-			void ElnCommunicator::debugPrintChannels();
+			String intToString(int16_t value);
+			void debugPrintLockFlags();
+			void debugPrintChannels();
 		#endif
 };
 #endif

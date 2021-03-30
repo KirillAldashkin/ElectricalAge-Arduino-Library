@@ -11,22 +11,21 @@ Sometimes you need to provide direct interaction between the pins and the Arduin
 In order to make it impossible to change their state from the outside, there is a
 LockPin(int pin) method that prohibits changing the state or mode of this pin from
 the outside (reading remains allowed). There is also the UnlockPin(int pin) method,
-which removes the ban on editing the pin from the outside, and the isLocked(int pin)
+which removes the ban on editing the pin from the outside, and the IsLocked(int pin)
 function, which determines whether the pin is blocked.
 
 Try to check out this functionality:
- 0) a) Connect LED to some PWN pin. Change the LED_PIN to the pin
-       number that you connected the LED to.
-    b) Make sure that the connection speed is 500000 baud,
-       and that the newline character is "NL".
- 1) First send a connection request: "C". Arduino will respond
-    with "I%type%", where %type% is the board type. The connection
-    is established, and the LED starts flashing.
- 2) Send the command "S01XX0", which should (in theory) change the
-    mode of pin XX to the input, but this will not happen, the LED
-    will continue to blink.
- 3) Send the command "W01YY0X", which should (in theory) send the signal
-    X to pin YY, but this will not happen, the LED will continue to blink.
+ 0) a) Connect LED to some PWN pin. Change the LED_PIN to the pin number that you
+       connected the LED to.
+    b) Make sure that the connection speed is 500000 baud, and that the newline
+       character is "NL".
+ 1) First send a connection request: "C". Arduino will respond with "I%type%", where
+    %type% is the board type. The connection is established.
+ 2) Send the command "S01XX0" (XX is LED_PIN), which should (in theory) change the
+    mode of pin XX to the input, but this will not happen, the LED will continue 
+    to blink.
+ 3) Send the command "W01YY0X" (XX is LED_PIN), which should (in theory) send the
+    signal X to pin YY, but this will not happen, the LED will continue to blink.
 */
 
 void setup() {
@@ -34,20 +33,27 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Eln.LockPin(LED_PIN);
   // Waiting for a connection request
-  Eln.OpenConnection();
 }
 
 long tm = 0;
 bool light = false;
 void loop() {
-  if(Serial.available()) {
+  // If the connection is connected, process the messages, 
+  // otherwise process the connection request.
+  if(Eln.IsConnected())
+  {
     // Reading a message only if it has arrived
     // (or started to arrive), so as not to stop the program.
-    Eln.WaitMessage();
+    Eln.CheckMessage();
+  }
+  else
+  {
+    // Check, not wait for the connection request, so as not to stop the program.
+    Eln.TryOpenConnection();
   }
   /*
     IMPORTANT:
-    The WaitMessage function must be called as often as possible,
+    The CheckMessage and WaitMessage functions must be called as often as possible,
     so the delay() function is not applicable. Use the millis() function instead,
     which returns the time in milliseconds since the board was started.
   */
